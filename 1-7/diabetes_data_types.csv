@@ -1,0 +1,18 @@
+Column,Data_Type
+Age,int64
+Gender,int64
+Polyuria,int64
+Polydipsia,int64
+sudden weight loss,int64
+weakness,int64
+Polyphagia,int64
+Genital thrush,int64
+visual blurring,int64
+Itching,int64
+Irritability,int64
+delayed healing,int64
+partial paresis,int64
+muscle stiffness,int64
+Alopecia,int64
+Obesity,int64
+class,int64
