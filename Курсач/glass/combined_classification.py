@@ -29,9 +29,8 @@ if not os.path.exists('plots'):
     os.makedirs('plots')
 
 # Загрузка датасета
-url = "https://archive.ics.uci.edu/ml/machine-learning-databases/glass/glass.data"
 columns = ['Id', 'RI', 'Na', 'Mg', 'Al', 'Si', 'K', 'Ca', 'Ba', 'Fe', 'Type']
-glass = pd.read_csv(url, names=columns)
+glass = pd.read_csv("glass.csv", names=columns)
 
 # Словарь для маппинга типов стекла
 glass_types = {
@@ -445,6 +444,7 @@ print("="*50)
 
 # --- Вспомогательные функции ---
 def sigmoid(Z):
+    Z = np.clip(Z, -500, 500)  # Ограничиваем значения Z
     return 1 / (1 + np.exp(-Z))
 
 def sigmoid_derivative(p):
@@ -452,6 +452,7 @@ def sigmoid_derivative(p):
 
 def softmax(Z):
     # Стабильная версия softmax
+    Z = np.clip(Z, -500, 500)
     exp_Z = np.exp(Z - np.max(Z, axis=1, keepdims=True))
     return exp_Z / np.sum(exp_Z, axis=1, keepdims=True)
 
@@ -671,8 +672,8 @@ class NeuralNetwork:
     
     def predict(self, X):
         # Предсказание классов
-        y_pred = self.feedforward(X)
-        return np.argmax(y_pred, axis=1)
+        probs = self.feedforward(X)
+        return np.argmax(probs, axis=1)
     
     def predict_proba(self, X):
         # Вероятности классов
@@ -739,7 +740,7 @@ def optimize_custom_nn(X, y):
 # --- Подготовка данных для пользовательской нейронной сети ---
 # One-hot encoding для меток классов
 encoder = OneHotEncoder(sparse_output=False)
-y_encoded = encoder.fit_transform(y.reshape(-1, 1))
+y_encoded = encoder.fit_transform(np.array(y).reshape(-1, 1))
 
 # Оптимизация гиперпараметров
 best_params_custom = optimize_custom_nn(X_scaled, y_encoded)
@@ -814,8 +815,13 @@ plt.tight_layout()
 plt.savefig('plots/custom_nn_confusion_matrix.png')
 plt.close()
 
-# Обновление сравнения моделей
-models_comparison['Пользовательская нейронная сеть'] = accuracy_custom
+# Создаем словарь для сравнения моделей
+models_comparison = {
+    'Логистическая регрессия': lr_results['accuracy'],
+    'Случайный лес': rf_results['accuracy'],
+    'Нейронная сеть': nn_results['accuracy'],
+    'Пользовательская нейронная сеть': accuracy_custom
+}
 
 # Обновление визуализации сравнения моделей
 plt.figure(figsize=(12, 6))
